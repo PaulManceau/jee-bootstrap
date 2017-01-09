@@ -1,11 +1,10 @@
 package jeuDames;
 
-public class jeuDeDames {
+public class GameJDDimpl implements GameJDD {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		System.out.println("Hello World");
-		
+
 	}
 
 }
