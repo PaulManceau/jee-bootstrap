@@ -7,19 +7,16 @@ public class GameJDDimpl implements GameJDD {
 
 	public static final int SQUARE_SIZE = 10;
     public static final String OUTSIDE_OF_BOARD_ERROR = "It is not possible move a chip outside of the board";
-    public static final String NO_CHIP_ON_CELL_ERROR = "There is no chip on the board";
-    
-    //a jeter
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
-	}
+    public static final String NO_CHIP_ON_CELL_ERROR = "There is no chip on the board";    
 	
     List<List<ChipColor>> board = new ArrayList<>(SQUARE_SIZE);
 	
-	private void initBoard(){
+	public void initBoard(){
 		for (int i = 0; i < SQUARE_SIZE; i++) {
             board.add(new ArrayList<ChipColor>(SQUARE_SIZE));
+            for (int j = 0; j < SQUARE_SIZE; j++){
+            	board.get(i).add(ChipColor.EMPTY);
+            } 
         }
 	}
 	

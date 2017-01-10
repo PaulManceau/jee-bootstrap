@@ -2,6 +2,6 @@ package jeuDames;
 
 public enum ChipColor {
 	
-	BLANC, NOIR
+	BLANC, NOIR, EMPTY
 
 }
