@@ -12,6 +12,9 @@ public interface GameJDD {
 	
     void play(int abs, int ord, boolean direction) throws GameException;
 
+    void showCurrentBoardStatus();
+    
+    
     /**
      * Returns the color of the chip in a given cell, null if no
      * chip is present.

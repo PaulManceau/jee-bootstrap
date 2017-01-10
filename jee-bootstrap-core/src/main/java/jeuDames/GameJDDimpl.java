@@ -54,4 +54,15 @@ public class GameJDDimpl implements GameJDD {
 		return SQUARE_SIZE;
 	}
 
+
+	@Override
+	public void showCurrentBoardStatus() {
+		for (int i = 9; i >= 0; i--){
+			for (int j = 0; j< 10; j++){
+				System.out.print(board.get(i).get(j) + " ");
+			}
+		System.out.print("\n");
+		}		
+	}
+
 }
