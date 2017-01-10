@@ -1,13 +1,14 @@
 package testpackage;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Fail.fail;
-import static org.junit.Assert.*;
+//import static org.assertj.core.api.Assertions.assertThat;
+//import static org.assertj.core.api.Fail.fail;
+//import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import jeuDames.GameJDD;
+import jeuDames.GameJDDimpl;
 
 
 public class GameJDDTest {
@@ -16,13 +17,17 @@ public class GameJDDTest {
 	
 	@Before
     public void doBefore() throws Exception {
-        // instancier la partie
+		game = new GameJDDimpl();
     }
 	
 	
 	@Test
-	public void aPlayerCanMoveAChip() throws Exception {
-		
+	public void aPlayerHasSelecthisChip() throws Exception {
+		//joueur blanc indique piont Blanc
+	}
+	@Test
+	public void aPlayerCanMoveChip() throws Exception {
+		//test direction sélectionnée
 	}
 	@Test
 	public void aPlayerCantPlayOutsideTheBoard() throws Exception {
@@ -30,7 +35,7 @@ public class GameJDDTest {
 	}
 	@Test
 	public void aPlayerCanEatAChip() throws Exception {
-		
+		//test couleur et position
 	}
 	
 	
