@@ -15,7 +15,9 @@ public class GameJDDimpl implements GameJDD {
 		for (int i = 0; i < SQUARE_SIZE; i++) {
             board.add(new ArrayList<ChipColor>(SQUARE_SIZE));
             for (int j = 0; j < SQUARE_SIZE; j++){
-            	board.get(i).add(ChipColor.EMPTY);
+            	if(i % 2 == j % 2 && i<4)board.get(i).add(ChipColor.BLANC);
+            	else if(i % 2 == j % 2 && i>5)board.get(i).add(ChipColor.NOIR);
+            	else board.get(i).add(ChipColor.EMPTY);
             } 
         }
 	}
