@@ -10,7 +10,7 @@ public interface GameJDD {
 	 * @throws GameException if it is not allowed to play in that cell.
 	 */
 	
-    void play(int abs, int ord, boolean direction) throws GameException;
+    void play(int abs, int ord, Direction direction) throws GameException;
 
     void showCurrentBoardStatus();
     

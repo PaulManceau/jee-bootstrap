@@ -25,7 +25,7 @@ public class GameJDDimpl implements GameJDD {
 	
 	//Le board est une liste de liste : la liste principale, verticale, contient des listes horizontales
 	@Override
-	public void play(int abs, int ord, boolean direction) throws GameException {
+	public void play(int abs, int ord, Direction direction) throws GameException {
 		if (abs > getSquareSize() - 1){
 			throw new GameException(OUTSIDE_OF_BOARD_ERROR);
 		}
