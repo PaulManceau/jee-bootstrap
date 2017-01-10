@@ -39,14 +39,35 @@ public class GameJDDimpl implements GameJDD {
 
 	@Override
 	public ChipColor getCell(int abs, int ord) {
-		// TODO Auto-generated method stub
-		return null;
+		return board.get(ord).get(abs);
 	}
 
 	@Override
 	public ChipColor getWinner() {
-		// TODO Auto-generated method stub
-		return null;
+		int nbWhiteChip = 0;
+		int nbBlackChip = 0;
+		
+		for (int i = 0; i< SQUARE_SIZE; i++){
+			for (int j = 0; j< SQUARE_SIZE; j++){
+				if (board.get(i).get(j) == ChipColor.BLANC){
+					nbWhiteChip++;
+				}
+				if (board.get(i).get(j) == ChipColor.NOIR){
+					nbBlackChip++;
+				}
+			}
+		}
+		
+		if (nbWhiteChip == 0 && nbBlackChip != 0){
+			return ChipColor.NOIR;
+		} else if ( nbBlackChip == 0 && nbWhiteChip != 0){
+			return ChipColor.BLANC;
+		} else if (nbWhiteChip == 0 && nbBlackChip == 0) {
+			//implemeter message d erreur 
+			return null;
+		} else {
+			return null;
+		}
 	}
 
 	@Override
@@ -58,7 +79,7 @@ public class GameJDDimpl implements GameJDD {
 	@Override
 	public void showCurrentBoardStatus() {
 		for (int i = 9; i >= 0; i--){
-			for (int j = 0; j< 10; j++){
+			for (int j = 0; j< SQUARE_SIZE; j++){
 				System.out.print(board.get(i).get(j) + " ");
 			}
 		System.out.print("\n");

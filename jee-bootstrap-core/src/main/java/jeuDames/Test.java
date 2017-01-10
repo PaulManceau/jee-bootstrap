@@ -8,8 +8,14 @@ public class Test {
 		GameJDDimpl Partie = new GameJDDimpl();		
 		Partie.initBoard();
 		
+		//Test de méthode showCurrentBoardStatus
 		Partie.board.get(0).set(0, ChipColor.BLANC);
-		Partie.showCurrentBoardStatus();		
+		Partie.showCurrentBoardStatus();
+		
+		System.out.println(Partie.getCell(0, 0));
+		
+		//Test de méthode getWinner
+		System.out.println(Partie.getWinner().toString());
 
 	}
 
