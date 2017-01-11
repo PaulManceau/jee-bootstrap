@@ -9,18 +9,42 @@ public interface GameJDD {
 	 * @param ord
 	 * @throws GameException if it is not allowed to play in that cell.
 	 */
-	
-    void play(int abs, int ord, Direction direction) throws GameException;
+    void play(int abs, int ord, String direction) throws GameException;
+    
     /**
-	 * Function all only if player can eat a chip
-	 * @param colour
+   	 * can the player play again ?
+   	 * @param abs
+   	 * @param ord
+   	 * @param color
+   	 * @return boolean
+   	 */
+    boolean canYouPlayAgain(int abs, int ord, ChipColor color);
+    
+    /**
+	 * Function call only if player can eat a chip
 	 * @param abs
 	 * @param ord
+	 * @param color
 	 * @throws GameException if it is not allowed to play in that cell.
 	 */
-	
-    void eatChip(int abs, int ord, Direction direction) throws GameException;
+    void eatChip(int abs, int ord, Direction direction, ChipColor color) throws GameException;
 
+    /**
+	 * Move using direction
+	 * @param direction
+	 * @param ord
+	 * @return integer
+	 */
+    int newOrd(int ord, Direction direction);
+    
+    /**
+	 * Move using direction
+	 * @param direction
+	 * @param abs
+	 * @return integer
+	 */
+    int newAbs(int abs, Direction direction);
+    
     void showCurrentBoardStatus();
     
     

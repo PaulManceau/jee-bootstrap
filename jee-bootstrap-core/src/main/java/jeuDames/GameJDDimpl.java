@@ -2,6 +2,7 @@ package jeuDames;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class GameJDDimpl implements GameJDD {
 
@@ -9,8 +10,7 @@ public class GameJDDimpl implements GameJDD {
 	public static final String CANT_FIND_PLAYER_ERROR = "Next player unfoundable";
     public static final String OUTSIDE_OF_BOARD_ERROR = "It is not possible move a chip outside of the board";
     public static final String NO_CHIP_ON_CELL_ERROR = "There is no chip on the board"; 
-    public static final String NOT_PLAYERS_CHIP_ERROR = "That is not your chip"; 
-    public static final String WRONG_DIRECTION_NAME_ERROR = "Directions are : AvD, AvG, ArD and ArG";
+    public static final String NOT_PLAYERS_CHIP_ERROR = "That is not your chip";
     
     ChipColor player = ChipColor.BLANC;
     List<List<ChipColor>> board = new ArrayList<>(SQUARE_SIZE);
@@ -29,33 +29,14 @@ public class GameJDDimpl implements GameJDD {
 	
 	//Le board est une liste de liste : la liste principale, verticale, contient des listes horizontales
 	@Override
-	public void play(int abs, int ord, Direction dir) throws GameException {
-		if(board.get(abs).get(ord) == ChipColor.EMPTY) throw new GameException(NO_CHIP_ON_CELL_ERROR) ;
-		if(board.get(abs).get(ord) != player) throw new GameException(NOT_PLAYERS_CHIP_ERROR) ;
+	public void play(int abs, int ord, String direction) throws GameException {
+		if(getCell(abs,ord) == ChipColor.EMPTY) throw new GameException(NO_CHIP_ON_CELL_ERROR) ;
+		if(getCell(abs,ord) != player) throw new GameException(NOT_PLAYERS_CHIP_ERROR) ;
 		
-		int newAbs, newOrd;
+		Direction dir = Direction.valueOf(direction);
+		int newAbs = newAbs(abs, dir);
+		int newOrd = newOrd(ord, dir);
 		
-		switch (dir) {
-		case AvD:
-			newAbs = abs + 1;
-			newOrd = ord + 1;
-			break;
-		case AvG:
-			newAbs = abs + 1;
-			newOrd = ord - 1;
-			break;
-		case ArD:
-			newAbs = abs - 1;
-			newOrd = ord + 1;
-			break;
-		case ArG:
-			newAbs = abs - 1;
-			newOrd = ord - 1;
-			break;
-
-		default:
-			throw new GameException(WRONG_DIRECTION_NAME_ERROR);
-		}
 		if (newAbs > getSquareSize() - 1 || newAbs < 0){
 			throw new GameException(OUTSIDE_OF_BOARD_ERROR);
 		}
@@ -64,21 +45,24 @@ public class GameJDDimpl implements GameJDD {
 		}
 		
 		//Test move
-		if(board.get(newAbs).get(newOrd)== ChipColor.EMPTY){
-			if (dir == Direction.AvD || dir == Direction.AvG){
-				board.get(abs).set(ord, ChipColor.EMPTY);
-				board.get(newOrd).set(newOrd, player);
-				player = changePlayer(player);
-			}else{
-				System.out.println("Player : " + player.toString() +", you can't move backward");
+		if(newAbs != abs && newOrd != ord){
+			if(getCell(newAbs,newOrd)== ChipColor.EMPTY){
+				if (dir == Direction.AvD || dir == Direction.AvG){
+					board.get(abs).set(ord, ChipColor.EMPTY);
+					board.get(newOrd).set(newOrd, player);
+					player = changePlayer(player);
+					System.out.println("Player " + player + " that's your turn");
+				}else{
+					System.out.println("Player : " + player.toString() +", you can't move backward");
+				}
 			}
-		}
-		else if(board.get(newAbs).get(newOrd)== player){
-			System.out.println("Player : " + player.toString() +", one of your chips blocks your move" );
-		}
-		else
-		{
-			eatChip(abs,ord,dir);
+			else if(getCell(newAbs,newOrd)== player){
+				System.out.println("Player : " + player.toString() +", one of your chips blocks your move" );
+			}
+			else
+			{
+				eatChip(abs,ord,dir,player);
+			}
 		}
 		
 		//après modifications des listes
@@ -157,9 +141,120 @@ public class GameJDDimpl implements GameJDD {
 
 
 	@Override
-	public void eatChip(int abs, int ord, Direction direction) throws GameException {
-		// TODO Auto-generated method stub
+	public void eatChip(int abs, int ord, Direction direction, ChipColor color) throws GameException {
 		
+		int ordEatenChip = newOrd(ord,direction);
+		int absEatenCHip = newAbs(abs,direction);
+		int newOrd = 2*ordEatenChip;
+		int newAbs = 2*absEatenCHip;
+		
+		Scanner scanner = new Scanner(System.in);
+		String command;
+		
+		ChipColor ChipOnNewPosition = getCell(newOrd,newAbs);
+		
+		if( ChipOnNewPosition != color || ChipOnNewPosition != ChipColor.EMPTY){
+			System.out.println("You can't eat this chip, play again");
+		}else{
+			board.get(abs).set(ord, ChipColor.EMPTY);
+			board.get(absEatenCHip).set(ordEatenChip, ChipColor.EMPTY);
+			board.get(newAbs).set(newOrd, player);
+			System.out.println(player + " : you eat a chip");
+			
+			if(canYouPlayAgain(newAbs,newOrd, player) == true ){
+				System.out.println("Player " + player + " you can eat again, enter a direction (Avd, AvG, ArD or ArG) : ");
+				command = scanner.nextLine();
+				scanner.close();
+				play(newAbs,newOrd,command);
+			}else{
+				player = changePlayer(player);
+				System.out.println("Player " + player + " that's your turn");
+			}
+		}
+	}
+
+
+	@Override
+	public int newOrd(int ord, Direction direction) {
+		int newOrd = 0;
+		switch (direction) {
+		case AvD:
+			newOrd = ord + 1;
+			break;
+		case AvG:
+			newOrd = ord - 1;
+			break;
+		case ArD:
+			newOrd = ord + 1;
+			break;
+		case ArG:
+			newOrd = ord - 1;
+			break;
+
+		default:
+			System.out.println(direction + " is not a direction. Directions are : AvD, AvG, ArD and ArG");
+			newOrd = ord;
+		}
+		return newOrd;
+	}
+
+
+	@Override
+	public int newAbs(int abs, Direction direction) {
+		int newAbs=0;
+		switch (direction) {
+		case AvD:
+			newAbs = abs + 1;
+			break;
+		case AvG:
+			newAbs = abs + 1;
+			break;
+		case ArD:
+			newAbs = abs - 1;
+			break;
+		case ArG:
+			newAbs = abs - 1;
+			break;
+
+		default:
+			System.out.println(direction + " is not a direction. Directions are : AvD, AvG, ArD and ArG");
+			newAbs = abs;
+		}
+		return newAbs;
+	}
+
+
+	@Override
+	public boolean canYouPlayAgain(int abs, int ord, ChipColor color) {
+		
+		
+		ChipColor ChipAvD = getCell(newAbs(abs,Direction.AvD), newOrd(ord,Direction.AvD));
+		ChipColor ChipArD = getCell(newAbs(abs,Direction.ArD), newOrd(ord,Direction.ArD));
+		ChipColor ChipAvG = getCell(newAbs(abs,Direction.AvG), newOrd(ord,Direction.AvG));
+		ChipColor ChipArG = getCell(newAbs(abs,Direction.ArG), newOrd(ord,Direction.ArG));
+		
+		if( ChipAvD != ChipColor.EMPTY && ChipAvD != color){
+			if(getCell(2*newAbs(abs,Direction.AvD),2*newOrd(ord,Direction.AvD)) == ChipColor.EMPTY){
+				return true;
+			}
+		}
+		if( ChipAvG != ChipColor.EMPTY && ChipAvG != color){
+			if(getCell(2*newAbs(abs,Direction.AvG),2*newOrd(ord,Direction.AvG)) == ChipColor.EMPTY){
+				return true;
+			}
+		}
+		if( ChipArD != ChipColor.EMPTY && ChipArD != color){
+			if(getCell(2*newAbs(abs,Direction.ArD),2*newOrd(ord,Direction.ArD)) == ChipColor.EMPTY){
+				return true;
+			}
+		}
+		if( ChipArG != ChipColor.EMPTY && ChipArG != color){
+			if(getCell(2*newAbs(abs,Direction.ArG),2*newOrd(ord,Direction.ArG)) == ChipColor.EMPTY){
+				return true;
+			}
+		}
+		
+		return false;
 	}
 
 }
