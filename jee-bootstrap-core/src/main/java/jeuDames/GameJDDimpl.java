@@ -40,7 +40,7 @@ public class GameJDDimpl implements GameJDD {
 	}
 
 	@Override
-	public ChipColor getCell(int abs, int ord) {
+	public ChipColor getCell(int abs, int ord) {	
 		return board.get(ord).get(abs);
 	}
 
