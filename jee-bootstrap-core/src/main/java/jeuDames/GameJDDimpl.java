@@ -9,20 +9,22 @@ public class GameJDDimpl implements GameJDD {
 	public static final int SQUARE_SIZE = 10;
 	public static final String CANT_FIND_PLAYER_ERROR = "Next player unfoundable";
     public static final String OUTSIDE_OF_BOARD_ERROR = "It is not possible move a chip outside of the board";
-    public static final String NO_CHIP_ON_CELL_ERROR = "There is no chip on the board"; 
-    public static final String NOT_PLAYERS_CHIP_ERROR = "That is not your chip";
+    public String ANSI_BLACK = "NOIRE"; //"\u001B[30m";
+    public String ANSI_WHITE = "BLANC"; //"\u001B[37m";
+    public String ANSI_YELLOW = "EMPTY"; //"\u001B[33m";
     
-    ChipColor player = ChipColor.BLANC;
-    List<List<ChipColor>> board = new ArrayList<>(SQUARE_SIZE);
+    CaseColor player = CaseColor.BLANC;
+    List<List<CaseColor>> board = new ArrayList<>(SQUARE_SIZE);
+	private Scanner scanner;
 	
 	public void initBoard(){
 		for (int i = 0; i < SQUARE_SIZE; i++) {
-            board.add(new ArrayList<ChipColor>(SQUARE_SIZE));
+            board.add(new ArrayList<CaseColor>(SQUARE_SIZE)); 
             for (int j = 0; j < SQUARE_SIZE; j++){
-            	if(i % 2 == j % 2 && i<4)board.get(i).add(ChipColor.BLANC);
-            	else if(i % 2 == j % 2 && i>5)board.get(i).add(ChipColor.NOIR);
-            	else board.get(i).add(ChipColor.EMPTY);
-            } 
+            	if(i % 2 == j % 2 && i<4)board.get(i).add(CaseColor.BLANC);
+            	else if(i % 2 == j % 2 && i>5)board.get(i).add(CaseColor.NOIRE);
+            	else board.get(i).add(CaseColor.EMPTY);
+            }
         }
 	}
 	
@@ -30,75 +32,74 @@ public class GameJDDimpl implements GameJDD {
 	//Le board est une liste de liste : la liste principale, verticale, contient des listes horizontales
 	@Override
 	public void play(int abs, int ord, String direction) throws GameException {
-		if(getCell(abs,ord) == ChipColor.EMPTY) throw new GameException(NO_CHIP_ON_CELL_ERROR) ;
-		if(getCell(abs,ord) != player) throw new GameException(NOT_PLAYERS_CHIP_ERROR) ;
-		
-		Direction dir = Direction.valueOf(direction);
-		int newAbs = newAbs(abs, dir);
-		int newOrd = newOrd(ord, dir);
-		
-		if (newAbs > getSquareSize() - 1 || newAbs < 0){
-			throw new GameException(OUTSIDE_OF_BOARD_ERROR);
-		}
-		if (newOrd> getSquareSize() - 1 || newOrd < 0){
-			throw new GameException(OUTSIDE_OF_BOARD_ERROR);
-		}
-		
-		//Test move
-		if(newAbs != abs && newOrd != ord){
-			if(getCell(newAbs,newOrd)== ChipColor.EMPTY){
-				if (dir == Direction.AvD || dir == Direction.AvG){
-					board.get(abs).set(ord, ChipColor.EMPTY);
-					board.get(newOrd).set(newOrd, player);
-					player = changePlayer(player);
-					System.out.println("Player " + player + " that's your turn");
-				}else{
-					System.out.println("Player : " + player.toString() +", you can't move backward");
+		if(getCell(abs,ord) == CaseColor.EMPTY) System.out.println("There is no chip on the board") ;
+		else if(getCell(abs,ord) != player) System.out.println("That is not your chip, select a Chip "+ player) ;
+		else{
+			Direction dir = Direction.valueOf(direction);
+			int newAbs = newAbs(abs, dir);
+			int newOrd = newOrd(ord, dir, player);
+			if (newAbs > getSquareSize() - 1 || newAbs < 0){
+				throw new GameException(OUTSIDE_OF_BOARD_ERROR);
+			}
+			if (newOrd> getSquareSize() - 1 || newOrd < 0){
+				throw new GameException(OUTSIDE_OF_BOARD_ERROR);
+			}
+			//Test move
+			if(newAbs != abs && newOrd != ord){
+				if(getCell(newAbs,newOrd)== CaseColor.EMPTY){
+					if (dir == Direction.AvD || dir == Direction.AvG){
+						board.get(ord).set(abs, CaseColor.EMPTY);
+						board.get(newOrd).set(newAbs, player);
+						player = changePlayer(player);
+						System.out.println("Player " + player + " that's your turn");
+					}else{
+						System.out.println("Player : " + player.toString() +", you can't move backward");
+					}
+				}
+				else if(getCell(newAbs,newOrd)== player){
+					System.out.println("Player : " + player.toString() +", one of your chips blocks your move" );
+				}
+				else
+				{
+					eatChip(abs,ord,dir,player);
 				}
 			}
-			else if(getCell(newAbs,newOrd)== player){
-				System.out.println("Player : " + player.toString() +", one of your chips blocks your move" );
-			}
-			else
-			{
-				eatChip(abs,ord,dir,player);
-			}
+			
+			//après modifications des listes
+			List<CaseColor> ordList = board.get(ord);
+			List<CaseColor> newOrdList = board.get(newOrd);
+			if (ordList.size() > SQUARE_SIZE || newOrdList.size() > SQUARE_SIZE ) {
+	            throw new GameException(OUTSIDE_OF_BOARD_ERROR);
+	        }
 		}
-		
-		//après modifications des listes
-		List<ChipColor> absList = board.get(abs);
-		List<ChipColor> newAbsList = board.get(newAbs);
-		if (absList.size() >= SQUARE_SIZE || newAbsList.size() >= SQUARE_SIZE ) {
-            throw new GameException(OUTSIDE_OF_BOARD_ERROR);
-        }
 		
 	}
 
 	@Override
-	public ChipColor getCell(int abs, int ord) {
+	public CaseColor getCell(int abs, int ord) {
 		return board.get(ord).get(abs);
 	}
 
 	@Override
-	public ChipColor getWinner() {
+	public CaseColor getWinner() {
 		int nbWhiteChip = 0;
 		int nbBlackChip = 0;
 		
 		for (int i = 0; i< SQUARE_SIZE; i++){
 			for (int j = 0; j< SQUARE_SIZE; j++){
-				if (board.get(i).get(j) == ChipColor.BLANC){
+				if (board.get(i).get(j) == CaseColor.BLANC){
 					nbWhiteChip++;
 				}
-				if (board.get(i).get(j) == ChipColor.NOIR){
+				if (board.get(i).get(j) == CaseColor.NOIRE){
 					nbBlackChip++;
 				}
 			}
 		}
 		
 		if (nbWhiteChip == 0 && nbBlackChip != 0){
-			return ChipColor.NOIR;
+			return CaseColor.NOIRE;
 		} else if ( nbBlackChip == 0 && nbWhiteChip != 0){
-			return ChipColor.BLANC;
+			return CaseColor.BLANC;
 		} else if (nbWhiteChip == 0 && nbBlackChip == 0) {
 			//implemeter message d erreur 
 			return null;
@@ -118,6 +119,17 @@ public class GameJDDimpl implements GameJDD {
 		for (int i = 9; i >= 0; i--){
 			for (int j = 0; j< SQUARE_SIZE; j++){
 				System.out.print(board.get(i).get(j) + " ");
+				/*switch (getCell(i, j)) {
+				case NOIRE:
+					System.out.print(" "+ ANSI_BLACK);
+					break;
+				case BLANC:
+					System.out.print(" "+ ANSI_WHITE);
+					break;
+				default:
+					System.out.print(" "+ ANSI_YELLOW);
+					break;
+				}*/
 			}
 		System.out.print("\n");
 		}		
@@ -125,13 +137,13 @@ public class GameJDDimpl implements GameJDD {
 
 
 	@Override
-	public ChipColor changePlayer(ChipColor player) throws GameException{
+	public CaseColor changePlayer(CaseColor player) throws GameException{
 		switch (player) {
 		case BLANC:
-			player = ChipColor.NOIR;
+			player = CaseColor.NOIRE;
 			break;
-		case NOIR:
-			player = ChipColor.BLANC;
+		case NOIRE:
+			player = CaseColor.BLANC;
 			break;
 		default:
 			throw new GameException(CANT_FIND_PLAYER_ERROR);
@@ -141,30 +153,30 @@ public class GameJDDimpl implements GameJDD {
 
 
 	@Override
-	public void eatChip(int abs, int ord, Direction direction, ChipColor color) throws GameException {
+	public void eatChip(int abs, int ord, Direction direction, CaseColor color) throws GameException {
 		
-		int ordEatenChip = newOrd(ord,direction);
-		int absEatenCHip = newAbs(abs,direction);
-		int newOrd = 2*ordEatenChip;
-		int newAbs = 2*absEatenCHip;
+		int ordEatenChip = newOrd(ord,direction, player);
+		int absEatenChip = newAbs(abs,direction);
+		int newOrd = newOrd(ordEatenChip,direction, player);
+		int newAbs = newAbs(absEatenChip,direction);
 		
-		Scanner scanner = new Scanner(System.in);
+		scanner = new Scanner(System.in);
 		String command;
+		System.out.println("ord : "+ newOrd +", abs :"+ newAbs);
+		CaseColor ChipOnNewPosition = getCell(newAbs,newOrd);
 		
-		ChipColor ChipOnNewPosition = getCell(newOrd,newAbs);
-		
-		if( ChipOnNewPosition != color || ChipOnNewPosition != ChipColor.EMPTY){
+		if( ChipOnNewPosition == color || ChipOnNewPosition != CaseColor.EMPTY){
 			System.out.println("You can't eat this chip, play again");
 		}else{
-			board.get(abs).set(ord, ChipColor.EMPTY);
-			board.get(absEatenCHip).set(ordEatenChip, ChipColor.EMPTY);
-			board.get(newAbs).set(newOrd, player);
+			board.get(ord).set(abs, CaseColor.EMPTY);
+			board.get(ordEatenChip).set(absEatenChip, CaseColor.EMPTY);
+			board.get(newOrd).set(newAbs, player);
 			System.out.println(player + " : you eat a chip");
 			
 			if(canYouPlayAgain(newAbs,newOrd, player) == true ){
 				System.out.println("Player " + player + " you can eat again, enter a direction (Avd, AvG, ArD or ArG) : ");
-				command = scanner.nextLine();
-				scanner.close();
+				command = scanner.next();
+				showCurrentBoardStatus();
 				play(newAbs,newOrd,command);
 			}else{
 				player = changePlayer(player);
@@ -175,25 +187,46 @@ public class GameJDDimpl implements GameJDD {
 
 
 	@Override
-	public int newOrd(int ord, Direction direction) {
+	public int newOrd(int ord, Direction direction, CaseColor player) {
 		int newOrd = 0;
-		switch (direction) {
-		case AvD:
-			newOrd = ord + 1;
-			break;
-		case AvG:
-			newOrd = ord - 1;
-			break;
-		case ArD:
-			newOrd = ord + 1;
-			break;
-		case ArG:
-			newOrd = ord - 1;
-			break;
+		if(player == CaseColor.BLANC){
+			switch (direction) {
+			case AvD:
+				newOrd = ord + 1;
+				break;
+			case AvG:
+				newOrd = ord + 1;
+				break;
+			case ArD:
+				newOrd = ord - 1;
+				break;
+			case ArG:
+				newOrd = ord - 1;
+				break;
 
-		default:
-			System.out.println(direction + " is not a direction. Directions are : AvD, AvG, ArD and ArG");
-			newOrd = ord;
+			default:
+				System.out.println(direction + " is not a direction. Directions are : AvD, AvG, ArD and ArG");
+				newOrd = ord;
+			}
+		}else{
+			switch (direction) {
+			case AvD:
+				newOrd = ord - 1;
+				break;
+			case AvG:
+				newOrd = ord - 1;
+				break;
+			case ArD:
+				newOrd = ord + 1;
+				break;
+			case ArG:
+				newOrd = ord + 1;
+				break;
+	
+			default:
+				System.out.println(direction + " is not a direction. Directions are : AvD, AvG, ArD and ArG");
+				newOrd = ord;
+			}
 		}
 		return newOrd;
 	}
@@ -207,13 +240,13 @@ public class GameJDDimpl implements GameJDD {
 			newAbs = abs + 1;
 			break;
 		case AvG:
-			newAbs = abs + 1;
+			newAbs = abs - 1;
 			break;
 		case ArD:
-			newAbs = abs - 1;
+			newAbs = abs + 1;
 			break;
 		case ArG:
-			newAbs = abs - 1;
+			newAbs = abs + 1;
 			break;
 
 		default:
@@ -225,35 +258,26 @@ public class GameJDDimpl implements GameJDD {
 
 
 	@Override
-	public boolean canYouPlayAgain(int abs, int ord, ChipColor color) {
+	public boolean canYouPlayAgain(int abs, int ord, CaseColor color) {
 		
+		int nextCaseOrd, nextCaseAbs, followingCaseOrd, followingCaseAbs;
+		CaseColor NextCase;
+		CaseColor FollowingCase;
 		
-		ChipColor ChipAvD = getCell(newAbs(abs,Direction.AvD), newOrd(ord,Direction.AvD));
-		ChipColor ChipArD = getCell(newAbs(abs,Direction.ArD), newOrd(ord,Direction.ArD));
-		ChipColor ChipAvG = getCell(newAbs(abs,Direction.AvG), newOrd(ord,Direction.AvG));
-		ChipColor ChipArG = getCell(newAbs(abs,Direction.ArG), newOrd(ord,Direction.ArG));
-		
-		if( ChipAvD != ChipColor.EMPTY && ChipAvD != color){
-			if(getCell(2*newAbs(abs,Direction.AvD),2*newOrd(ord,Direction.AvD)) == ChipColor.EMPTY){
-				return true;
+		for(Direction dir : Direction.values()){
+			nextCaseAbs = newAbs(abs,dir);
+			nextCaseOrd = newOrd(ord, dir, color);
+			followingCaseAbs = newAbs(nextCaseAbs,dir);
+			followingCaseOrd = newOrd(nextCaseOrd, dir, color);
+			NextCase = getCell(nextCaseAbs, nextCaseOrd);
+			FollowingCase = getCell(followingCaseAbs,followingCaseOrd);
+			
+			if(NextCase != CaseColor.EMPTY && NextCase != color){
+				if(FollowingCase == CaseColor.EMPTY){
+					return true;
+				}
 			}
 		}
-		if( ChipAvG != ChipColor.EMPTY && ChipAvG != color){
-			if(getCell(2*newAbs(abs,Direction.AvG),2*newOrd(ord,Direction.AvG)) == ChipColor.EMPTY){
-				return true;
-			}
-		}
-		if( ChipArD != ChipColor.EMPTY && ChipArD != color){
-			if(getCell(2*newAbs(abs,Direction.ArD),2*newOrd(ord,Direction.ArD)) == ChipColor.EMPTY){
-				return true;
-			}
-		}
-		if( ChipArG != ChipColor.EMPTY && ChipArG != color){
-			if(getCell(2*newAbs(abs,Direction.ArG),2*newOrd(ord,Direction.ArG)) == ChipColor.EMPTY){
-				return true;
-			}
-		}
-		
 		return false;
 	}
 
