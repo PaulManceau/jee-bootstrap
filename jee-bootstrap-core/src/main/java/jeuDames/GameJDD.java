@@ -20,6 +20,13 @@ public interface GameJDD {
    	 */
     boolean canYouPlayAgain(int abs, int ord, CaseColor color);
     
+    void initBoard();
+    
+    void clearBord();
+    
+    void setChip(int abs, int ord, CaseColor color);
+    
+    
     /**
 	 * Function call only if player can eat a chip
 	 * @param abs
