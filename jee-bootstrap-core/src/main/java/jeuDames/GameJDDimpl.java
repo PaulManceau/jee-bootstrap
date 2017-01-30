@@ -76,7 +76,7 @@ public class GameJDDimpl implements GameJDD {
 	}
 
 	@Override
-	public CaseColor getCell(int abs, int ord) {
+	public CaseColor getCell(int abs, int ord) {	
 		return board.get(ord).get(abs);
 	}
 
@@ -279,6 +279,22 @@ public class GameJDDimpl implements GameJDD {
 			}
 		}
 		return false;
+	}
+
+
+	@Override
+	public void clearBord() {
+		for (int i = 0; i < SQUARE_SIZE; i++) {
+            for (int j = 0; j < SQUARE_SIZE; j++){
+            	board.get(i).set(j, CaseColor.EMPTY);
+            }
+        }		
+	}
+
+
+	@Override
+	public void setChip(int abs, int ord, CaseColor color) {
+		board.get(ord).set(abs, color);		
 	}
 
 }
