@@ -7,9 +7,7 @@
     <artifactId>jee-bootstrap-parent</artifactId>
     <version>1.0-SNAPSHOT</version>
   </parent>
-  <groupId>org.dmetzler.isen.jee</groupId>
   <artifactId>jee-bootstrap-web</artifactId>
-  <version>1.0-SNAPSHOT</version>
   <packaging>war</packaging>
   <name>jee-bootstrap-web Maven Webapp</name>
   <url>http://maven.apache.org</url>
