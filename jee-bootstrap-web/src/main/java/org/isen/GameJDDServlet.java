@@ -41,11 +41,11 @@ public class GameJDDServlet extends HttpServlet {
 		doGet(request, response);
 	}
 	
-	private void redirectToGameRoot(HttpServletResponse response,
+	/*private void redirectToGameRoot(HttpServletResponse response,
             HttpServletRequest request) throws IOException {
         response.sendRedirect(request.getContextPath()
                 + request.getServletPath() + "/" + game.getToken());
-    }
+    }*/
 	
 	private String getTokenFromRequest(HttpServletRequest request) {
         if (request == null) {
